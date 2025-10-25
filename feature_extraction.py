@@ -13,9 +13,17 @@ class FeatureExtractor:
 
     def __extract_text(self) -> None:
         page_text = ""
-        with fitz.open(self.document) as doc:
-            for page in doc:
-                page_text += page.get_text()
+        try:
+            with fitz.open(self.document) as doc:
+                for page in doc:
+                    page_text += page.get_text()
+        except RuntimeError as e:
+            if "too many kids in page tree" in str(e):
+                doc = fitz.open(self.document)
+                doc.save(self.document, garbage=4, clean=True)
+                doc.close()            
+                print(f"Successfully repaired and saved to {self.document}")
+                self.__extract_text()
         self._extract_content(page_text)
     
     def _extract_content(self, text: str) -> None:        

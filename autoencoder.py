@@ -25,21 +25,21 @@ def model_predict(feature_vector:list[float|np.typing.NDArray[np.float64]]):
     if None in scalars:
         print(f"Error: Feature extraction failed to get scalar values. Got: {scalars}")
         print("Cannot proceed with prediction. Check the feature extractor's logic on the input file.")
-        sys.exit(1)
-    
+        return
+
     try:
         # Ensure scalars are floats before converting to tensor
         s_data_tensor = torch.tensor([float(s) for s in scalars], dtype=torch.float32)
     except (ValueError, TypeError) as e:
         print(f"Error converting scalars to tensor: {e}. Scalars: {scalars}")
-        sys.exit(1)
+        return
 
     try:
         vector_features_np = np.stack(vectors)
         v_data_tensor = torch.tensor(vector_features_np, dtype=torch.float32)
     except (ValueError, TypeError) as e:
         print(f"Error converting vectors to tensor: {e}.")
-        sys.exit(1)
+        return
     recon_loss = get_reconstruction_errors(model=model, criterion=criterion,s_data=s_data_tensor,v_data=v_data_tensor,device=device)
     return recon_loss
 
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     print(f"Found {len(pdf_files)} PDF files. Starting processing...\n")
 
     for i, pdf_path in enumerate(pdf_files):
-        threshold = 0.011
+        threshold = 0.00935
         try:
             features = process_files(pdf_path, sentence_model)
             if features is None: # Add check in case process_files failed

@@ -15,7 +15,7 @@ def model_predict(feature_vector:list[float|np.typing.NDArray[np.float64]]):
     try:
         project_dir = os.path.dirname(os.path.dirname(__file__))
         data_path = os.path.join(project_dir, "PaperGrading", r"pre-weights\autoencoder_weights.pt")   
-        model.load_state_dict(torch.load(data_path))
+        model.load_state_dict(torch.load(data_path, map_location=device))
     except Exception as e:
         print(f"Model not loaded: {e}")
         sys.exit(1)
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     print(f"Found {len(pdf_files)} PDF files. Starting processing...\n")
 
     for i, pdf_path in enumerate(pdf_files):
-        threshold = 0.0109
+        threshold = 0.011
         try:
             features = process_files(pdf_path, sentence_model)
             if features is None: # Add check in case process_files failed
